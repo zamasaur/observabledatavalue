@@ -1,0 +1,10 @@
+{
+	"name": "@zamasaur/js-observabledatavalue",
+	"description": "A class that represents an observable data value.",
+	"type": "module",
+	"private": true,
+	"dependencies": {},
+	"devDependencies": {
+		"jsdoc": "latest"
+	}
+}
