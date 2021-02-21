@@ -4,34 +4,33 @@
 */
 
 /**
- * A class that represents an observable data value.
- */
+* A class that represents an observable data value.
+*/
 export class ObservableDataValue {
 
 	/**
-	 * Constructor.
-	 * 
-	 * @param {*} value 
-	 */
+	* Constructor.
+	* 
+	* @param {*} value 
+	*/
 	constructor(value) {
 		this._value = value;
-		this._options = { once: false };
-		this.onchange = (event) => { };
+		this._onchange = new Map();
 		Object.seal(this);
 	}
 
 	/**
-	 * Returns the value.
-	 */
+	* Returns the value.
+	*/
 	get value() {
 		return this._value;
 	}
 
 	/**
-	 * Sets the value.
-	 * 
-	 * @param {*} value 
-	 */
+	* Sets the value.
+	* 
+	* @param {*} value 
+	*/
 	set value(value) {
 		if (this._value !== value) {
 			this._value = value;
@@ -40,25 +39,27 @@ export class ObservableDataValue {
 				timeStamp: Date.now(),
 				type: "change",
 			}
-			this.onchange(event);
-			if(this._options.once){
-				this.removeEventListener("change", this.onchange);
-			}
+			this._onchange.forEach((value, key) => {
+				key(event);
+				if (value.once) {
+					this.removeEventListener("change", key);
+				}
+			});
 		}
 	}
 
 	/**
-	 * Adds an event listener to the value.
-	 * 
-	 * @param {string} type A case-sensitive string representing the event type to listen for.
-	 * @param {function} listener The object that receives a notification.
-	 * @param {object} options Optional { once: true } indicating that the listener should be invoked at most once after being added.
-	 */
+	* Adds an event listener to the value.
+	* 
+	* @param {string} type A case-sensitive string representing the event type to listen for.
+	* @param {function} listener The object that receives a notification.
+	* @param {object} options Optional { once: true } indicating that the listener should be invoked at most once after being added.
+	*/
 	addEventListener(type, listener, options = { once: false }) {
-		this._options = options;
+		options = JSON.stringify(options) === JSON.stringify({ once: true }) || JSON.stringify(options) === JSON.stringify({ once: false }) ? options : { once: false };
 		switch (type) {
 			case "change":
-				this.onchange = listener;
+				this._onchange.set(listener, options);
 				break;
 			default:
 				break;
@@ -66,18 +67,15 @@ export class ObservableDataValue {
 	}
 
 	/**
-	 * Removes an event listener previously registered.
-	 * 
-	 * @param {string} type A case-sensitive string representing the event type to listen for.
-	 * @param {function} listener The object that receives a notification.
-	 */
+	* Removes an event listener previously registered.
+	* 
+	* @param {string} type A case-sensitive string representing the event type to listen for.
+	* @param {function} listener The object that receives a notification.
+	*/
 	removeEventListener(type, listener) {
 		switch (type) {
 			case "change":
-				if (this._options.once) {
-					this._options = { once: false };
-				}
-				this.onchange = (event) => { };
+				this._onchange.delete(listener);
 				break;
 			default:
 				break;
