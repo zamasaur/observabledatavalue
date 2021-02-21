@@ -57,29 +57,24 @@ import { ObservableDataValue } from "../node_modules/@zamasaur/js-codec/src/Obse
 
 var dataValue = new ObservableDataValue(1);
 
-function myFunction(event){
-    console.log(event.target.value);
+function myFunction(event) {
+	console.log(event.target.value);
 }
 
-dataValue.addEventListener("change", (event) => {
-    myFunction(event)
-}, { once: true });
+dataValue.addEventListener("change", myFunction, { once: true });
 
+dataValue.value = 2;
 dataValue.value = 2;
 dataValue.value = 3;
 dataValue.value = 4;
 
-dataValue.addEventListener("change", (event) => {
-    myFunction(event)
-});
+dataValue.addEventListener("change", myFunction);
 
 dataValue.value = 5;
 dataValue.value = 6;
 dataValue.value = 7;
 
-dataValue.removeEventListener("change", (event) => {
-    myFunction(event)
-});
+dataValue.removeEventListener("change", myFunction);
 
 dataValue.value = 8;
 dataValue.value = 9;
